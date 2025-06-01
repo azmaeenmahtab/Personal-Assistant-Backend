@@ -7,7 +7,7 @@ const jwt = require("jsonwebtoken");
 dotenv.config();
 
 
-
+//register api
 const register = async (req, res) => {
     try {
         const { name, email, phone, password } = req.body;
@@ -33,7 +33,7 @@ const register = async (req, res) => {
 
 
 }
-
+//login api
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -68,6 +68,7 @@ const login = async (req, res) => {
         res.status(500).json({ success: false, error: "Internal server error" });
     }
 }
+//total cost insert
 const budgetInput = async (req, res) => {
     try {
 
@@ -89,7 +90,7 @@ const budgetInput = async (req, res) => {
 
 
 }
-
+//rental cost insert
 const rentalInput = async (req, res) => {
     try {
         const userId = req.user.userId;
@@ -119,7 +120,7 @@ const rentalInput = async (req, res) => {
         });
     }
 }
-
+//food cost insert
 const foodCostInput = async (req, res) => {
     try {
         const user_id = req.user.userId;
@@ -151,13 +152,56 @@ const foodCostInput = async (req, res) => {
 
     }
 }
+//utility cost insert
+const utilityCostInput = async (req, res) => {
+    try {
+        const user_id = req.user.userId;
+
+        const { utility_cost } = req.body;
+
+        if (utility_cost === undefined || isNaN(utility_cost)) {
+
+            return res.status(400).json({
+                success: false,
+                error: "invalid utility cost"
+            })
+        }
+
+        const result = await db.query("UPDATE data SET utility_cost = $1 WHERE user_id = $2 RETURNING *", [utility_cost, user_id]);
+
+        if (result.rows.length == 0) {
+
+            console.log("attempted to update utility column but no row returned");
+            return res.status(404).json({
+                success: false,
+                error: "failed to insert utility cost"
+            })
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "utility cost inserted succesfully"
+        });
+
+    } catch (error) {
+        console.error("utility input error:", error);
+        return res.status(500).json({
+            success: false,
+            error: "Internal server error"
+        })
+
+    }
+}
+
+
 
 module.exports = {
     register,
     login,
     budgetInput,
     rentalInput,
-    foodCostInput
+    foodCostInput,
+    utilityCostInput
 }
 
 
