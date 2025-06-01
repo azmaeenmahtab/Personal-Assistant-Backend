@@ -15,33 +15,7 @@ router.post("/rental_budget", authMiddleware, apiController.rentalInput);
 
 router.post("/food_budget", authMiddleware, apiController.foodCostInput);
 router.post("/utility_budget", authMiddleware, apiController.utilityCostInput);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+router.post("/transport_budget", authMiddleware, apiController.transportCostInput);
 
 
 

@@ -192,6 +192,46 @@ const utilityCostInput = async (req, res) => {
 
     }
 }
+//transport cost insertion
+const transportCostInput = async (req, res) => {
+    try {
+        const user_id = req.user.userId;
+
+        const { transport_cost } = req.body;
+
+        if (transport_cost === undefined || isNaN(transport_cost)) {
+
+            return res.status(400).json({
+                success: false,
+                error: "invalid transport cost"
+            })
+        }
+
+        const result = await db.query("UPDATE data SET transport_cost = $1 WHERE user_id = $2 RETURNING *", [transport_cost, user_id]);
+
+        if (result.rows.length == 0) {
+
+            console.log("attempted to update transport column but no row returned");
+            return res.status(404).json({
+                success: false,
+                error: "failed to insert transport cost"
+            })
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "transport cost inserted succesfully"
+        });
+
+    } catch (error) {
+        console.error("transport input error:", error);
+        return res.status(500).json({
+            success: false,
+            error: "Internal server error"
+        })
+
+    }
+}
 
 
 
@@ -201,7 +241,8 @@ module.exports = {
     budgetInput,
     rentalInput,
     foodCostInput,
-    utilityCostInput
+    utilityCostInput,
+    transportCostInput
 }
 
 
