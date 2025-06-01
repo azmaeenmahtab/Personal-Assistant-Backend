@@ -120,11 +120,44 @@ const rentalInput = async (req, res) => {
     }
 }
 
+const foodCostInput = async (req, res) => {
+    try {
+        const user_id = req.user.userId;
+
+        const { food_cost } = req.body;
+
+        const result = await db.query("UPDATE data SET food_cost = $1 WHERE user_id = $2 RETURNING *", [food_cost, user_id]);
+
+        if (result.rows.length == 0) {
+
+            console.log("attempted to update food column but no row returned");
+            return res.status(404).json({
+                success: false,
+                error: "failed to insert food cost"
+            })
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "food cost inserted succesfully"
+        });
+
+    } catch (error) {
+        console.error("Rental input error:", error);
+        return res.status(500).json({
+            success: false,
+            error: "Internal server error"
+        })
+
+    }
+}
+
 module.exports = {
     register,
     login,
     budgetInput,
-    rentalInput
+    rentalInput,
+    foodCostInput
 }
 
 
