@@ -192,44 +192,74 @@ const utilityCostInput = async (req, res) => {
 
     }
 }
-//transport cost insertion
-const transportCostInput = async (req, res) => {
+//transport distance insertion
+const transportDistanceInput = async (req, res) => {
     try {
         const user_id = req.user.userId;
 
-        const { transport_cost } = req.body;
+        const { distance } = req.body;
 
-        if (transport_cost === undefined || isNaN(transport_cost)) {
+        if (distance === undefined || isNaN(distance)) {
 
             return res.status(400).json({
                 success: false,
-                error: "invalid transport cost"
+                error: "invalid transport distance"
             })
         }
 
-        const result = await db.query("UPDATE data SET transport_cost = $1 WHERE user_id = $2 RETURNING *", [transport_cost, user_id]);
+        const result = await db.query("INSERT INTO transportinfo (user_id, distance) VALUES ($1, $2) RETURNING *", [user_id, distance]);
 
         if (result.rows.length == 0) {
 
-            console.log("attempted to update transport column but no row returned");
+            console.log("attempted to update Distance column but no row returned");
             return res.status(404).json({
                 success: false,
-                error: "failed to insert transport cost"
+                error: "failed to insert transport Distance"
             })
         }
 
         res.status(200).json({
             success: true,
-            message: "transport cost inserted succesfully"
+            message: "transport distance inserted succesfully"
         });
 
     } catch (error) {
-        console.error("transport input error:", error);
+        console.error("transport distance input error:", error);
         return res.status(500).json({
             success: false,
             error: "Internal server error"
         })
 
+    }
+}
+
+const getDistance = async (req, res) => {
+    try {
+        const userId = req.user.userId;
+
+        const result = await db.query("SELECT distance FROM transportinfo WHERE user_id = $1 ORDER BY data_id DESC LIMIT 1", [userId]);
+
+        if (!result.rows.length === 0) {
+            return res.status(400).json({
+                success: false,
+                error: "Cant get distance from db"
+            })
+        };
+
+        const data = result.rows[0];
+
+        res.status(200).json({
+            success: true,
+            message: "get distance data successfully",
+            data: data
+        })
+    } catch (error) {
+
+        console.error(error);
+        return res.status(400).json({
+            success: false,
+            error: "Internal server error", error
+        })
     }
 }
 
@@ -242,7 +272,8 @@ module.exports = {
     rentalInput,
     foodCostInput,
     utilityCostInput,
-    transportCostInput
+    transportDistanceInput,
+    getDistance
 }
 
 
