@@ -18,6 +18,8 @@ router.post("/utility_budget", authMiddleware, apiController.utilityCostInput);
 router.post("/transport_distance", authMiddleware, apiController.transportDistanceInput);
 router.get("/get_distance", authMiddleware, apiController.getDistance)
 
+router.post("/vehicle", authMiddleware, apiController.vehicleAndFareInput)
+
 
 
 module.exports = router;

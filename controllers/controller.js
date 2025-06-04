@@ -232,7 +232,7 @@ const transportDistanceInput = async (req, res) => {
 
     }
 }
-
+//get distance for fare calclation
 const getDistance = async (req, res) => {
     try {
         const userId = req.user.userId;
@@ -263,6 +263,47 @@ const getDistance = async (req, res) => {
     }
 }
 
+const vehicleAndFareInput = async (req, res) => {
+
+    try {
+        const user_id = req.user.userId;
+
+        const { vehicle, vehicle_fare } = req.body;
+
+        if (vehicle_fare === undefined || isNaN(vehicle_fare)) {
+
+            return res.status(400).json({
+                success: false,
+                error: "invalid vehicle fare"
+            })
+        }
+
+        const result = await db.query("UPDATE transportinfo SET vehicle = $1, vehicle_fare = $2 WHERE user_id = $3 RETURNING *", [vehicle, vehicle_fare, user_id]);
+
+        if (result.rows.length == 0) {
+
+            console.log("attempted to update vehicle and fare column but no row returned");
+            return res.status(404).json({
+                success: false,
+                error: "failed to insert vehicle and fare"
+            })
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "vehicle name and cost inserted succesfully"
+        });
+
+    } catch (error) {
+        console.error("vehicle and cost input error:", error);
+        return res.status(500).json({
+            success: false,
+            error: "Internal server error"
+        })
+
+    }
+}
+
 
 
 module.exports = {
@@ -273,7 +314,8 @@ module.exports = {
     foodCostInput,
     utilityCostInput,
     transportDistanceInput,
-    getDistance
+    getDistance,
+    vehicleAndFareInput
 }
 
 
