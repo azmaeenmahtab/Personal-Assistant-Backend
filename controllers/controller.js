@@ -278,16 +278,14 @@ const vehicleAndFareInput = async (req, res) => {
             })
         }
 
+        await db.query("BEGIN");
+
         const result = await db.query("UPDATE transportinfo SET vehicle = $1, vehicle_fare = $2 WHERE user_id = $3 RETURNING *", [vehicle, vehicle_fare, user_id]);
 
-        if (result.rows.length == 0) {
 
-            console.log("attempted to update vehicle and fare column but no row returned");
-            return res.status(404).json({
-                success: false,
-                error: "failed to insert vehicle and fare"
-            })
-        }
+        const result1 = await db.query("UPDATE data SET transport_cost = $1 WHERE user_id = $2 RETURNING *", [vehicle_fare, user_id]);
+
+        await db.query("COMMIT")
 
         res.status(200).json({
             success: true,
@@ -296,11 +294,42 @@ const vehicleAndFareInput = async (req, res) => {
 
     } catch (error) {
         console.error("vehicle and cost input error:", error);
+        await db.query("ROLLBACK")
         return res.status(500).json({
             success: false,
             error: "Internal server error"
         })
 
+    }
+}
+
+const comparisonDataGet = async (req, res) => {
+    try {
+        const userId = req.user.userId;
+
+        const result = await db.query("SELECT main_budget, seat_rent, food_cost, utility_cost, transport_cost FROM data WHERE user_id = $1 ORDER BY data_id DESC LIMIT 1", [userId]);
+
+        if (!result.rows.length === 0) {
+            return res.status(400).json({
+                success: false,
+                error: "Cant get data from db"
+            })
+        };
+
+        const data = result.rows[0];
+
+        res.status(200).json({
+            success: true,
+            message: "get data successfully",
+            data: data
+        })
+    } catch (error) {
+
+        console.error(error);
+        return res.status(400).json({
+            success: false,
+            error: "Internal server error", error
+        })
     }
 }
 
@@ -315,7 +344,8 @@ module.exports = {
     utilityCostInput,
     transportDistanceInput,
     getDistance,
-    vehicleAndFareInput
+    vehicleAndFareInput,
+    comparisonDataGet
 }
 
 

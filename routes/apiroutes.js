@@ -16,9 +16,10 @@ router.post("/rental_budget", authMiddleware, apiController.rentalInput);
 router.post("/food_budget", authMiddleware, apiController.foodCostInput);
 router.post("/utility_budget", authMiddleware, apiController.utilityCostInput);
 router.post("/transport_distance", authMiddleware, apiController.transportDistanceInput);
-router.get("/get_distance", authMiddleware, apiController.getDistance)
-
 router.post("/vehicle", authMiddleware, apiController.vehicleAndFareInput)
+
+router.get("/get_distance", authMiddleware, apiController.getDistance)
+router.get("/comparison_data", authMiddleware, apiController.comparisonDataGet)
 
 
 
